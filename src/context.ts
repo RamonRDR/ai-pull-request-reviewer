@@ -8,7 +8,7 @@ const binaryExt = /\.(png|jpe?g|gif|webp|ico|svg|pdf|zip|gz|jar|wasm|exe|dll|cla
 const sensitivePath = /(^|\/)(\.env($|\.)|.*\.(pem|key|p12|pfx)$|id_rsa|id_ed25519|secrets?\.json$)/i;
 
 function globMatch(path: string, pattern: string): boolean {
-  const escaped = pattern.replace(/[.+^$()|[\]{}]/g, '\\$&').replace(/\*\*/g, '\u0000').replace(/\*/g, '[^/]*').replace(/\u0000/g, '.*').replace(/\?/g, '.');
+  const escaped = pattern.replace(/[.+^$()|[\]{}]/g, '\\$&').replace(/\*\*/g, '__GLOBSTAR__').replace(/\*/g, '[^/]*').replace(/__GLOBSTAR__/g, '.*').replace(/\?/g, '.');
   return new RegExp('^' + escaped + '$').test(path);
 }
 
