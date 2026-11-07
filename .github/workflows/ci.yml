@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main, "feat/**"]
+    branches: [main, 'feat/**']
 
 permissions:
   contents: read
@@ -23,18 +23,13 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: "26"
+          node-version: '26'
       - name: Install dependencies without running audit during install
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       - name: ESLint
         run: npm run lint
-      - name: Prettier check and format diagnostic
-        shell: bash
-        run: |
-          npm run format
-          node --input-type=module -e 'import fs from "node:fs"; import {execFileSync} from "node:child_process"; const paths=execFileSync("git",["diff","--name-only","--diff-filter=M"],{encoding:"utf8"}).trim().split("\n").filter(Boolean); for(const path of paths){console.log("__FORMATTED_FILE__"+JSON.stringify({path,content:fs.readFileSync(path,"utf8")}));}'
-          node --input-type=module -e 'import fs from "node:fs";console.log("__LOCK_FILE__"+JSON.stringify({path:"package-lock.json",content:fs.readFileSync("package-lock.json","utf8")}))'
-          git diff --quiet
+      - name: Prettier
+        run: npm run format:check
       - name: TypeScript strict check
         run: npm run typecheck
       - name: Vitest unit and integration mocks

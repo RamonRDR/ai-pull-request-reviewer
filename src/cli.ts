@@ -8,25 +8,32 @@ import { runReview } from './review.js';
 import { publishReview } from './publish.js';
 import { demoPr } from './demo.js';
 
-function flag(name: string): boolean { return process.argv.includes(name); }
+function flag(name: string): boolean {
+  return process.argv.includes(name);
+}
 function option(name: string): string | undefined {
   const index = process.argv.indexOf(name);
   return index === -1 ? undefined : process.argv[index + 1];
 }
 function help(): void {
-  console.log([
-    'AI Pull Request Reviewer (read-only by default)',
-    'Usage:',
-    '  npm run demo',
-    '  npm run start -- --repo owner/name --pr 123 --provider mock',
-    '  npm run start -- --repo owner/name --pr 123 --provider openai --allow-external-llm',
-    'Options: --config file --report file --publish (requires multiple independent opt-ins)',
-    'No automatic merge/approval/rejection.',
-  ].join('\n'));
+  console.log(
+    [
+      'AI Pull Request Reviewer (read-only by default)',
+      'Usage:',
+      '  npm run demo',
+      '  npm run start -- --repo owner/name --pr 123 --provider mock',
+      '  npm run start -- --repo owner/name --pr 123 --provider openai --allow-external-llm',
+      'Options: --config file --report file --publish (requires multiple independent opt-ins)',
+      'No automatic merge/approval/rejection.',
+    ].join('\n'),
+  );
 }
 
 export async function main(): Promise<void> {
-  if (flag('--help')) { help(); return; }
+  if (flag('--help')) {
+    help();
+    return;
+  }
   const config = await loadConfig(option('--config'));
   const demo = flag('--demo');
   const repository = option('--repo');
@@ -36,7 +43,8 @@ export async function main(): Promise<void> {
   if (!demo && (!repository || !Number.isSafeInteger(prNumber) || prNumber < 1)) {
     throw new Error('Supply --repo owner/name and --pr positive-number (or --demo)');
   }
-  if (demo && (flag('--publish') || providerName !== 'mock')) throw new Error('Demo must remain read-only and simulated');
+  if (demo && (flag('--publish') || providerName !== 'mock'))
+    throw new Error('Demo must remain read-only and simulated');
   if (providerName === 'openai' && !flag('--allow-external-llm')) {
     throw new Error('Sending PR data to a paid external LLM requires --allow-external-llm');
   }
@@ -45,7 +53,8 @@ export async function main(): Promise<void> {
     const [owner, repo] = repository.split('/');
     if (!owner || !repo) throw new Error('Invalid repository');
     const info = await api.repos.get({ owner, repo });
-    if (info.data.private) throw new Error('Sending private repositories to a remote LLM is disabled');
+    if (info.data.private)
+      throw new Error('Sending private repositories to a remote LLM is disabled');
   }
   const pr = demo ? demoPr : await fetchPullRequest(api!, repository!, prNumber);
   const provider = providerName === 'mock' ? new MockProvider() : new OpenAIProvider();
@@ -53,8 +62,16 @@ export async function main(): Promise<void> {
   const reportPath = option('--report') ?? (demo ? 'reports/demo.md' : 'reports/review.md');
   await mkdir(dirname(reportPath), { recursive: true });
   await writeFile(reportPath, result.report, 'utf8');
-  console.log('Report saved: ' + reportPath + ' | findings=' + result.findings.length +
-    ' | partial=' + result.truncated + ' | provider=' + result.source);
+  console.log(
+    'Report saved: ' +
+      reportPath +
+      ' | findings=' +
+      result.findings.length +
+      ' | partial=' +
+      result.truncated +
+      ' | provider=' +
+      result.source,
+  );
   if (flag('--publish')) {
     if (!api) throw new Error('Cannot publish a demo');
     const posted = await publishReview(api, pr, result, config, true);
@@ -65,6 +82,8 @@ export async function main(): Promise<void> {
 main().catch((error: unknown) => {
   const message = error instanceof Error ? error.message : 'Unknown error';
   // Never print arbitrary API responses (which may contain sensitive payloads).
-  console.error('Reviewer failed: ' + message.slice(0, 240).replace(/(gh[pousr]_|sk-)[^\s]+/gi, '[REDACTED]'));
+  console.error(
+    'Reviewer failed: ' + message.slice(0, 240).replace(/(gh[pousr]_|sk-)[^\s]+/gi, '[REDACTED]'),
+  );
   process.exitCode = 1;
 });

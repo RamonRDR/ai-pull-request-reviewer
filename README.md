@@ -64,17 +64,17 @@ Mock fixtures contain `DEMO_BUG⟧, `DEMO_EDGE⟧ and similar markers; the mock 
 
 Copy `.env.example⟧ into a local `.env⟧ only if you need credentials (the CLI does not auto-load .env). Set environment variables in your shell or a secure CI secret store. Never commit secrets. Adjust versioned rules in [`.ai-pr-reviewer.json⟧](.ai-pr-reviewer.json).
 
-| Setting | Purpose |
-| --- | --- |
-| `categories⟧ | Enabled bug, security, edge_case, maintainability, testing and performance categories |
-| `minSeverity⟧ | critical, high, medium, low or informational |
-| `ignore⟧ | Extra file globs to exclude |
-| `maxFiles⟧ / `maxContextChars⟧ | Input coverage and context caps |
-| `maxInputTokens⟧ / `maxOutputTokens⟧ | Preflight estimate and model output limit |
-| `maxCostUsd⟧ | Dollar ceiling per review, pre-checked against supplied provider prices |
-| `maxComments⟧ | Maximum findings |
-| `language⟧ / `customRules⟧ | Output language and repository-specific guidance |
-| `enablePublishing⟧ | Must be `true⟧ for manual publishing, defaults to `false⟧ |
+| Setting                              | Purpose                                                                               |
+| ------------------------------------ | ------------------------------------------------------------------------------------- |
+| `categories⟧                         | Enabled bug, security, edge_case, maintainability, testing and performance categories |
+| `minSeverity⟧                        | critical, high, medium, low or informational                                          |
+| `ignore⟧                             | Extra file globs to exclude                                                           |
+| `maxFiles⟧ / `maxContextChars⟧       | Input coverage and context caps                                                       |
+| `maxInputTokens⟧ / `maxOutputTokens⟧ | Preflight estimate and model output limit                                             |
+| `maxCostUsd⟧                         | Dollar ceiling per review, pre-checked against supplied provider prices               |
+| `maxComments⟧                        | Maximum findings                                                                      |
+| `language⟧ / `customRules⟧           | Output language and repository-specific guidance                                      |
+| `enablePublishing⟧                   | Must be `true⟧ for manual publishing, defaults to `false⟧                             |
 
 Invalid schemas fail before analysis.
 

@@ -9,7 +9,11 @@ export function addedLines(patch: string): { lines: ChangedLine[]; complete: boo
   for (const raw of patch.split('\n')) {
     if (raw.startsWith('@@')) {
       const match = /^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(raw);
-      if (!match) { complete = false; inHunk = false; continue; }
+      if (!match) {
+        complete = false;
+        inHunk = false;
+        continue;
+      }
       newLine = Number(match[1]);
       inHunk = true;
       continue;

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       pull_number:
-        description: "Optional PR number to inspect in the repository (blank runs a synthetic demo)"
+        description: 'Optional PR number to inspect in the repository (blank runs a synthetic demo)'
         required: false
         type: string
 
@@ -22,8 +22,8 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: "26"
-      - run: npm install --no-audit --no-fund
+          node-version: '26'
+      - run: npm ci --no-audit --no-fund
       - name: Run simulated reviewer
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

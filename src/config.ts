@@ -28,7 +28,10 @@ export async function loadConfig(path = '.ai-pr-reviewer.json'): Promise<Reviewe
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') return configSchema.parse({});
     if (error instanceof z.ZodError) {
-      throw new Error('Invalid reviewer configuration: ' + error.issues.map((i) => i.path.join('.') + ': ' + i.message).join('; '));
+      throw new Error(
+        'Invalid reviewer configuration: ' +
+          error.issues.map((i) => i.path.join('.') + ': ' + i.message).join('; '),
+      );
     }
     throw error;
   }

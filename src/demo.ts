@@ -25,7 +25,21 @@ export const demoPr: PullRequestData = {
   headRepo: 'example/synthetic-demo',
   changedFiles: 2,
   files: [
-    { filename: 'src/average.ts', status: 'modified', patch: buggyPatch, additions: 4, deletions: 0, changes: 4 },
-    { filename: 'src/greeting.ts', status: 'modified', patch: safePatch, additions: 1, deletions: 0, changes: 1 },
+    {
+      filename: 'src/average.ts',
+      status: 'modified',
+      patch: buggyPatch,
+      additions: 4,
+      deletions: 0,
+      changes: 4,
+    },
+    {
+      filename: 'src/greeting.ts',
+      status: 'modified',
+      patch: safePatch,
+      additions: 1,
+      deletions: 0,
+      changes: 1,
+    },
   ],
 };

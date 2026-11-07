@@ -3,7 +3,8 @@ import { addedLines } from '../src/diff.js';
 
 describe('unified diff parser', () => {
   it('anchors added lines on RIGHT side, across hunks', () => {
-    const patch = '@@ -4,3 +4,4 @@\n existing\n-old\n+new\n+second\n unchanged\n@@ -20,0 +22,1 @@\n+last';
+    const patch =
+      '@@ -4,3 +4,4 @@\n existing\n-old\n+new\n+second\n unchanged\n@@ -20,0 +22,1 @@\n+last';
     expect(addedLines(patch)).toEqual({
       complete: true,
       lines: [
