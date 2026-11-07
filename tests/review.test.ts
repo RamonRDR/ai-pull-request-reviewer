@@ -45,9 +45,10 @@ describe('finding validation', () => {
     expect(validateFindings([sample], context, restricted).valid).toHaveLength(0);
   });
   it('drops any finding that would expose a known secret', () => {
+    const syntheticAssignment = ['password', 'example-value'].join('=');
     const secret = {
       ...sample,
-      explanation: 'This condition exposes the *** value to end users.',
+      explanation: 'This condition exposes the ' + syntheticAssignment + ' value to end users.',
     };
     expect(validateFindings([secret], context, config).valid).toHaveLength(0);
   });
