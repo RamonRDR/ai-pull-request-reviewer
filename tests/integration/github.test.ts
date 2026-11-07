@@ -12,18 +12,15 @@ describe('GitHub REST integration with mocks', () => {
         changed_files: 1,
       },
     });
-    const paginate = vi
-      .fn()
-      .mockResolvedValue([
-        {
-          filename: 'src/a.ts',
-          status: 'modified',
-          patch: '@@ -0,0 +1,1 @@\n+x',
-          additions: 1,
-          deletions: 0,
-          changes: 1,
-        },
-      ]);
+    const changedFile = {
+      filename: 'src/a.ts',
+      status: 'modified',
+      patch: '@@ -0,0 +1,1 @@\n+x',
+      additions: 1,
+      deletions: 0,
+      changes: 1,
+    };
+    const paginate = vi.fn().mockResolvedValue([changedFile]);
     const fake = { pulls: { get, listFiles: vi.fn() }, paginate } as unknown as Octokit;
     const result = await fetchPullRequest(fake, 'owner/repo', 3);
     expect(get).toHaveBeenCalledOnce();
