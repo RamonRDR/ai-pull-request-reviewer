@@ -3,6 +3,7 @@ import type { Octokit } from '@octokit/rest';
 import { configSchema } from '../../src/config.js';
 import { demoPr } from '../../src/demo.js';
 import { publishReview } from '../../src/publish.js';
+import { fingerprint } from '../../src/review.js';
 import type { ReviewResult } from '../../src/models.js';
 
 const result: ReviewResult = {
@@ -63,6 +64,66 @@ describe('protected review publishing', () => {
       );
       expect(count).toBe(0);
       expect(createReview).not.toHaveBeenCalled();
+    } finally {
+      if (before === undefined) delete process.env.ALLOW_GITHUB_COMMENTS;
+      else process.env.ALLOW_GITHUB_COMMENTS = before;
+    }
+  });
+
+  it('simulates creating RIGHT-side comments, then deduplicates on rerun', async () => {
+    const before = process.env.ALLOW_GITHUB_COMMENTS;
+    process.env.ALLOW_GITHUB_COMMENTS = 'true';
+    const finding = {
+      path: 'src/average.ts',
+      line: 3,
+      category: 'bug' as const,
+      severity: 'medium' as const,
+      title: 'Incorrect denominator for the average',
+      explanation: 'The denominator is increased unnecessarily, causing incorrect results.',
+      suggestion: 'Use the actual number of elements for the divisor.',
+    };
+    const reviewed: ReviewResult = { ...result, findings: [finding] };
+    const paginate = vi.fn().mockResolvedValue([]);
+    const createReview = vi.fn().mockResolvedValue({});
+    const api = {
+      paginate,
+      pulls: { listReviewComments: vi.fn(), listReviews: vi.fn(), createReview },
+    } as unknown as Octokit;
+    try {
+      const count = await publishReview(
+        api,
+        demoPr,
+        reviewed,
+        configSchema.parse({ enablePublishing: true }),
+        true,
+      );
+      expect(count).toBe(1);
+      expect(createReview).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: 'COMMENT',
+          comments: [
+            expect.objectContaining({
+              path: 'src/average.ts',
+              line: 3,
+              side: 'RIGHT',
+            }),
+          ],
+        }),
+      );
+      const tag = '<!-- ai-pr-reviewer:' + fingerprint(finding) + ' -->';
+      const repeated = vi.fn().mockResolvedValueOnce([{ body: tag }]).mockResolvedValueOnce([]);
+      const repeatApi = {
+        paginate: repeated,
+        pulls: { listReviewComments: vi.fn(), listReviews: vi.fn(), createReview },
+      } as unknown as Octokit;
+      expect(await publishReview(
+        repeatApi,
+        demoPr,
+        reviewed,
+        configSchema.parse({ enablePublishing: true }),
+        true,
+      )).toBe(0);
+      expect(createReview).toHaveBeenCalledOnce();
     } finally {
       if (before === undefined) delete process.env.ALLOW_GITHUB_COMMENTS;
       else process.env.ALLOW_GITHUB_COMMENTS = before;
