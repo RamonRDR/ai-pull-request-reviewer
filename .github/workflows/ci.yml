@@ -28,11 +28,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: ESLint
         run: npm run lint
-      - name: Prettier diagnostic for simulated publication test
-        run: |
-          npx prettier --write tests/integration/publish.test.ts
-          node --input-type=module -e 'import fs from "node:fs";console.log("__FORMATTED_PUBLISH__"+JSON.stringify(fs.readFileSync("tests/integration/publish.test.ts","utf8")))'
-          git diff --quiet
+      - name: Prettier
+        run: npm run format:check
       - name: TypeScript strict check
         run: npm run typecheck
       - name: Vitest unit and integration mocks

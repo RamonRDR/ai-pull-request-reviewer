@@ -111,7 +111,10 @@ describe('protected review publishing', () => {
         }),
       );
       const tag = '<!-- ai-pr-reviewer:' + fingerprint(finding) + ' -->';
-      const repeated = vi.fn().mockResolvedValueOnce([{ body: tag }]).mockResolvedValueOnce([]);
+      const repeated = vi
+        .fn()
+        .mockResolvedValueOnce([{ body: tag }])
+        .mockResolvedValueOnce([]);
       const repeatApi = {
         paginate: repeated,
         pulls: { listReviewComments: vi.fn(), listReviews: vi.fn(), createReview },
