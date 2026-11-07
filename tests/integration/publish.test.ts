@@ -116,13 +116,15 @@ describe('protected review publishing', () => {
         paginate: repeated,
         pulls: { listReviewComments: vi.fn(), listReviews: vi.fn(), createReview },
       } as unknown as Octokit;
-      expect(await publishReview(
-        repeatApi,
-        demoPr,
-        reviewed,
-        configSchema.parse({ enablePublishing: true }),
-        true,
-      )).toBe(0);
+      expect(
+        await publishReview(
+          repeatApi,
+          demoPr,
+          reviewed,
+          configSchema.parse({ enablePublishing: true }),
+          true,
+        ),
+      ).toBe(0);
       expect(createReview).toHaveBeenCalledOnce();
     } finally {
       if (before === undefined) delete process.env.ALLOW_GITHUB_COMMENTS;
