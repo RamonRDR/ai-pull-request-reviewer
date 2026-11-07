@@ -1,0 +1,14 @@
+{
+  "language": "en",
+  "categories": ["bug", "security", "edge_case", "maintainability", "testing", "performance"],
+  "minSeverity": "low",
+  "maxFiles": 25,
+  "maxContextChars": 40000,
+  "maxComments": 15,
+  "maxInputTokens": 12000,
+  "maxOutputTokens": 2000,
+  "maxCostUsd": 0.15,
+  "ignore": ["**/*.min.js", "**/*.snap", "docs/generated/**"],
+  "customRules": ["Prefer actionable findings backed by changed lines."],
+  "enablePublishing": false
+}

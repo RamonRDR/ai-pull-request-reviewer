@@ -1,0 +1,36 @@
+{
+  "name": "ai-pull-request-reviewer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Security-first, human-in-the-loop pull request reviewer",
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:integration": "vitest run tests/integration",
+    "demo": "tsx src/cli.ts --demo",
+    "evaluate": "tsx src/evaluate.ts",
+    "start": "node dist/cli.js",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm test && npm run evaluate && npm run build"
+  },
+  "dependencies": {
+    "@octokit/rest": "^22.0.0",
+    "openai": "^6.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/node": "^24.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^4.0.0"
+  }
+}
