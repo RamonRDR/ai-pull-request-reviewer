@@ -49,7 +49,7 @@ export function validateFindings(
       continue;
     }
     seen.add(distinct);
-    result.push(item);
+    result.push({ ...item, id: 'APR-' + fingerprint(item).slice(0, 12) });
   }
   result.sort(
     (a, b) =>

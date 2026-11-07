@@ -118,7 +118,8 @@ export class OpenAIProvider implements ReviewProvider {
         allowedRightSideLines: file.added.map((line) => line.line),
       })),
     });
-    const upperInputTokens = Math.ceil(payload.length / 4) + 1200;
+    // UTF-8 byte length is deliberately more conservative than chars/4 for preflight limits.
+    const upperInputTokens = Buffer.byteLength(payload, 'utf8') + 1600;
     if (upperInputTokens > config.maxInputTokens)
       throw new Error('Input token estimate exceeds configured ceiling');
     const worstCost =

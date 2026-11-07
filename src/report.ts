@@ -39,6 +39,7 @@ export function markdownReport(pr: PullRequestData, review: ReviewResult): strin
     );
   for (const item of review.findings) {
     lines.push('### ' + item.severity.toUpperCase() + ': ' + safe(item.title));
+    lines.push('- ID: ' + safe(item.id ?? 'unassigned'));
     lines.push('- Location: ' + safe(item.path) + ':' + item.line);
     lines.push('- Category: ' + item.category);
     lines.push('- Evidence: ' + safe(item.evidence ?? 'Based on the supplied diff'));

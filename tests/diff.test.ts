@@ -17,6 +17,14 @@ describe('unified diff parser', () => {
   it('rejects patches without hunk headers', () => {
     expect(addedLines('not a patch').complete).toBe(false);
   });
+  it('rejects truncated hunks even when the header exists', () => {
+    expect(addedLines('@@ -0,0 +1,2 @@\n+only one').complete).toBe(false);
+  });
+  it('recognizes code lines whose content begins with plus signs', () => {
+    expect(addedLines('@@ -0,0 +1,1 @@\n+++increment').lines).toEqual([
+      { line: 1, text: '++increment' },
+    ]);
+  });
   it('never anchors removed lines', () => {
     expect(addedLines('@@ -1,1 +1,0 @@\n-old').lines).toEqual([]);
   });

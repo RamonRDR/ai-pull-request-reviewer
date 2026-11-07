@@ -1,7 +1,7 @@
 import type { PullRequestData } from './models.js';
 
 const buggyPatch = [
-  '@@ -1,2 +1,6 @@',
+  '@@ -1,1 +1,5 @@',
   ' export function average(values: number[]): number {',
   '+  const total = values.reduce((sum, value) => sum + value, 0); // DEMO_EDGE',
   '+  const denominator = values.length + 1; // DEMO_BUG',

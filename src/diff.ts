@@ -1,37 +1,57 @@
 import type { ChangedLine } from './models.js';
 
-/** Parses RIGHT-side line numbers from unified GitHub patches; never uses diff positions as file lines. */
+/** Parse RIGHT-side lines and verify unified-hunk lengths; never invent anchors for incomplete diffs. */
 export function addedLines(patch: string): { lines: ChangedLine[]; complete: boolean } {
   const lines: ChangedLine[] = [];
+  const input = patch.split('\n');
   let newLine = 0;
+  let expectedOld = 0;
+  let expectedNew = 0;
+  let seenOld = 0;
+  let seenNew = 0;
   let inHunk = false;
   let complete = true;
-  for (const raw of patch.split('\n')) {
+  let sawHunk = false;
+  const finish = (): void => {
+    if (inHunk && (seenOld !== expectedOld || seenNew !== expectedNew)) complete = false;
+  };
+  for (const [index, raw] of input.entries()) {
     if (raw.startsWith('@@')) {
-      const match = /^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(raw);
+      finish();
+      const match = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/.exec(raw);
       if (!match) {
         complete = false;
         inHunk = false;
         continue;
       }
-      newLine = Number(match[1]);
+      newLine = Number(match[3]);
+      expectedOld = match[2] === undefined ? 1 : Number(match[2]);
+      expectedNew = match[4] === undefined ? 1 : Number(match[4]);
+      seenOld = 0;
+      seenNew = 0;
+      sawHunk = true;
       inHunk = true;
       continue;
     }
-    if (!inHunk || raw.startsWith('\\ No newline at end of file')) continue;
-    if (raw.startsWith('+') && !raw.startsWith('+++')) {
+    if (raw.startsWith('\\ No newline at end of file')) continue;
+    if (!inHunk) {
+      if (raw) complete = false;
+      continue;
+    }
+    if (raw.startsWith('+')) {
       lines.push({ line: newLine, text: raw.slice(1) });
-      newLine += 1;
-    } else if (raw.startsWith('-') && !raw.startsWith('---')) {
-      // A removed line has no RIGHT-side anchor.
+      seenNew++;
+      newLine++;
+    } else if (raw.startsWith('-')) {
+      seenOld++;
     } else if (raw.startsWith(' ')) {
-      newLine += 1;
-    } else if (raw !== '') {
+      seenOld++;
+      seenNew++;
+      newLine++;
+    } else if (!(raw === '' && index === input.length - 1)) {
       complete = false;
-    } else {
-      // Trailing split terminator. Empty context lines from Git use a leading space.
     }
   }
-  if (!inHunk) complete = false;
-  return { lines, complete };
+  finish();
+  return { lines, complete: complete && sawHunk };
 }

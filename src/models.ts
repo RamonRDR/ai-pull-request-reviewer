@@ -13,6 +13,7 @@ export const severitySchema = z.enum(['critical', 'high', 'medium', 'low', 'info
 export type Severity = z.infer<typeof severitySchema>;
 
 export const findingSchema = z.object({
+  id: z.string().min(1).max(40).optional(),
   path: z.string().min(1).max(500),
   line: z.number().int().positive(),
   category: categorySchema,
