@@ -11,7 +11,7 @@ export function parseRepo(repo: string): { owner: string; repo: string } {
 
 export function githubClient(token: string): Octokit {
   if (!token) throw new Error('GITHUB_TOKEN is required for live pull requests');
-  return new Octokit({ auth: token, request: { timeout: 15000 }, throttle: undefined });
+  return new Octokit({ auth: token, request: { timeout: 15000 } });
 }
 
 export async function fetchPullRequest(

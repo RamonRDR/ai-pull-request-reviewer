@@ -15,7 +15,7 @@
     "test:integration": "vitest run tests/integration",
     "demo": "tsx src/cli.ts --demo",
     "evaluate": "tsx src/evaluate.ts",
-    "start": "node dist/cli.js",
+    "start": "node dist/src/cli.js",
     "check": "npm run lint && npm run format:check && npm run typecheck && npm test && npm run evaluate && npm run build"
   },
   "dependencies": {
