@@ -45,7 +45,7 @@ jobs:
       - name: Reproducible offline demo (no paid API)
         run: npm run demo
       - name: Upload demo Markdown
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: simulated-review-report
           path: reports/demo.md
