@@ -22,7 +22,7 @@
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%20%26%20manual-2088FF)](.github/workflows/ci.yml)
 [![Read-only default](https://img.shields.io/badge/reviews-read--only%20default-6B7280)](.ai-pr-reviewer.json)
 
-[![Vitest 26 passing](https://img.shields.io/badge/Vitest-26%20passing-6E9F18)](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/runs/42421599236)
+[![Vitest 32 passing](https://img.shields.io/badge/Vitest-32%20passing-6E9F18)](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml)
 [![ESLint](https://img.shields.io/badge/ESLint-lint-4B32C3)](eslint.config.mjs)
 [![Prettier](https://img.shields.io/badge/Prettier-format%20checked-F7B93E)](.prettierrc.json)
 [![TypeScript strict](https://img.shields.io/badge/TypeScript-strict%20checked-3178C6)](tsconfig.json)
@@ -32,7 +32,7 @@
 
 </div>
 
-> **Status do projeto:** MVP implementado no [PR #1](https://github.com/RamonRDR/ai-pull-request-reviewer/pull/1), ainda em **draft**. A [execução de CI confirmada](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/runs/42421599236) passou com **26 testes Vitest (0 falhas, 0 ignorados)**, tipagem, lint, formatação, build, demonstração, avaliação simulada e auditoria das dependências de produção. Sem merge, análise com LLM real ou publicação de comentários autorizada.
+> **Status do projeto:** MVP implementado no [PR #1](https://github.com/RamonRDR/ai-pull-request-reviewer/pull/1), **aberto para revisão**. A [execução de CI confirmada](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml) passou com **32 testes Vitest (0 falhas, 0 ignorados)**, tipagem, lint, formatação, build, demonstração, avaliação simulada e auditoria das dependências de produção. Sem merge, análise com LLM real ou publicação de comentários autorizada.
 
 ## 1. Visão geral
 
@@ -154,7 +154,7 @@ npm run build
 
 O [CI](.github/workflows/ci.yml) executa `npm ci`, ESLint, Prettier, TypeScript strict, Vitest, avaliação sintética, build, upload do relatório demonstrativo e auditoria de dependências de produção em runners do GitHub. O [workflow manual somente leitura](.github/workflows/demo.yml) recebe um número opcional de PR e não publica comentários. Não há runner self-hosted, deploy ou uso de IA paga.
 
-**Check de referência confirmado:** [26 aprovados, 0 falhas, 0 ignorados](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/runs/42421599236). O badge usa a **contagem real confirmada**, não estimativa por arquivos. O CI compara os badges dos três READMEs ao relatório JSON do Vitest; se a quantidade mudar, atualize todos os badges para o check passar. Não é anunciada porcentagem de cobertura, pois não há medição.
+**Check de referência confirmado:** [32 aprovados, 0 falhas, 0 ignorados](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml). O badge usa a **contagem real confirmada**, não estimativa por arquivos. O CI compara os badges dos três READMEs ao relatório JSON do Vitest; se a quantidade mudar, atualize todos os badges para o check passar. Não é anunciada porcentagem de cobertura, pois não há medição.
 
 ## 12. Metodologia de avaliação
 

@@ -47,11 +47,9 @@ describe('safe context preparation', () => {
     expect(prepared.files[0]?.patch).toContain('"api_key": "[REDACTED]"');
   });
   it('redacts quoted properties, whitespace values and escaped quoted content', () => {
-    expect(redact("'password' = 'fake multi word value'")).toBe(
-      "'password' = '[REDACTED]'",
-    );
+    expect(redact("'password' = 'fake multi word value'")).toBe("'password' = '[REDACTED]'");
     expect(redact('access_token=fake-example-token')).toBe('access_token=[REDACTED]');
-    const escaped = String.raw`"api_key": "fake \\"inner\\" value"`;
+    const escaped = String.raw`"api_key": "fake \"inner\" value"`;
     expect(redact(escaped)).not.toContain('inner');
     expect(redact(escaped)).toContain('[REDACTED]');
   });
