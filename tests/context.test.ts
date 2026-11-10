@@ -34,6 +34,27 @@ describe('safe context preparation', () => {
     expect(redact('api_key="topsecret"')).not.toContain('topsecret');
     expect(redact('ghp_12345678901234567890')).not.toContain('12345678901234567890');
   });
+  it('redacts JSON credentials in both patches and prepared added lines', () => {
+    const syntheticValue = 'fake-credential-with-spaces 42';
+    const json = '"password": "' + syntheticValue + '"';
+    expect(redact(json)).toBe('"password": "[REDACTED]"');
+    const patch = '@@ -0,0 +1,1 @@\n+{"api_key": "' + syntheticValue + '"}';
+    const prepared = prepareContext([file('config.json', patch)], config);
+    expect(prepared.truncated).toBe(false);
+    expect(prepared.files).toHaveLength(1);
+    expect(prepared.files[0]?.patch).not.toContain(syntheticValue);
+    expect(prepared.files[0]?.added[0]?.text).not.toContain(syntheticValue);
+    expect(prepared.files[0]?.patch).toContain('"api_key": "[REDACTED]"');
+  });
+  it('redacts quoted properties, whitespace values and escaped quoted content', () => {
+    expect(redact("'password' = 'fake multi word value'")).toBe(
+      "'password' = '[REDACTED]'",
+    );
+    expect(redact('access_token=fake-example-token')).toBe('access_token=[REDACTED]');
+    const escaped = String.raw`"api_key": "fake \\"inner\\" value"`;
+    expect(redact(escaped)).not.toContain('inner');
+    expect(redact(escaped)).toContain('[REDACTED]');
+  });
   it('skips patches without textual line anchors', () => {
     const result = prepareContext([file('src/new.ts', undefined)], config);
     expect(result.truncated).toBe(true);

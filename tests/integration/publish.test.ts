@@ -70,6 +70,44 @@ describe('protected review publishing', () => {
     }
   });
 
+  it('rejects publication when the PR head changes after analysis', async () => {
+    const before = process.env.ALLOW_GITHUB_COMMENTS;
+    process.env.ALLOW_GITHUB_COMMENTS = 'true';
+    const paginate = vi.fn().mockResolvedValue([]);
+    const createReview = vi.fn();
+    const get = vi.fn().mockResolvedValue({
+      data: { head: { sha: 'b'.repeat(40) } },
+    });
+    const client = {
+      paginate,
+      pulls: { get, listReviewComments: vi.fn(), listReviews: vi.fn(), createReview },
+    } as unknown as Octokit;
+    const finding = {
+      path: 'src/average.ts',
+      line: 3,
+      category: 'bug' as const,
+      severity: 'medium' as const,
+      title: 'Incorrect denominator for the average',
+      explanation: 'The denominator is increased unnecessarily, causing incorrect results.',
+      suggestion: 'Use the actual number of elements for the divisor.',
+    };
+    try {
+      await expect(
+        publishReview(
+          client,
+          demoPr,
+          { ...result, findings: [finding] },
+          configSchema.parse({ enablePublishing: true }),
+          true,
+        ),
+      ).rejects.toThrow(/head changed since analysis/);
+      expect(get).toHaveBeenCalledOnce();
+      expect(createReview).not.toHaveBeenCalled();
+    } finally {
+      if (before === undefined) delete process.env.ALLOW_GITHUB_COMMENTS;
+      else process.env.ALLOW_GITHUB_COMMENTS = before;
+    }
+  });
   it('simulates creating RIGHT-side comments, then deduplicates on rerun', async () => {
     const before = process.env.ALLOW_GITHUB_COMMENTS;
     process.env.ALLOW_GITHUB_COMMENTS = 'true';
@@ -85,9 +123,12 @@ describe('protected review publishing', () => {
     const reviewed: ReviewResult = { ...result, findings: [finding] };
     const paginate = vi.fn().mockResolvedValue([]);
     const createReview = vi.fn().mockResolvedValue({});
+    const get = vi.fn().mockResolvedValue({
+      data: { head: { sha: demoPr.headSha } },
+    });
     const api = {
       paginate,
-      pulls: { listReviewComments: vi.fn(), listReviews: vi.fn(), createReview },
+      pulls: { get, listReviewComments: vi.fn(), listReviews: vi.fn(), createReview },
     } as unknown as Octokit;
     try {
       const count = await publishReview(
@@ -101,6 +142,7 @@ describe('protected review publishing', () => {
       expect(createReview).toHaveBeenCalledWith(
         expect.objectContaining({
           event: 'COMMENT',
+          commit_id: demoPr.headSha,
           comments: [
             expect.objectContaining({
               path: 'src/average.ts',
@@ -117,13 +159,18 @@ describe('protected review publishing', () => {
         .mockResolvedValueOnce([]);
       const repeatApi = {
         paginate: repeated,
-        pulls: { listReviewComments: vi.fn(), listReviews: vi.fn(), createReview },
+        pulls: { get, listReviewComments: vi.fn(), listReviews: vi.fn(), createReview },
       } as unknown as Octokit;
+      const paraphrased: ReviewResult = {
+        ...reviewed,
+        findings: [{ ...finding, title: 'The average denominator produces incorrect values' }],
+      };
+      expect(fingerprint(paraphrased.findings[0]!)).toBe(fingerprint(finding));
       expect(
         await publishReview(
           repeatApi,
           demoPr,
-          reviewed,
+          paraphrased,
           configSchema.parse({ enablePublishing: true }),
           true,
         ),

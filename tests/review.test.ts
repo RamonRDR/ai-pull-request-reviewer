@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { configSchema } from '../src/config.js';
 import { prepareContext } from '../src/context.js';
-import { validateFindings, runReview } from '../src/review.js';
+import { validateFindings, runReview, fingerprint } from '../src/review.js';
 import { MockProvider } from '../src/provider.js';
 import { demoPr } from '../src/demo.js';
 
@@ -51,6 +51,23 @@ describe('finding validation', () => {
       explanation: 'This condition exposes the ' + syntheticAssignment + ' value to end users.',
     };
     expect(validateFindings([secret], context, config).valid).toHaveLength(0);
+  });
+  it('drops model output containing quoted JSON credentials', () => {
+    const value = 'fake-example-api-credential';
+    const item = {
+      ...sample,
+      explanation: 'A configuration file contains "api_key": "' + value + '" for the user.',
+    };
+    const { valid, excluded } = validateFindings([item], context, config);
+    expect(valid).toHaveLength(0);
+    expect(excluded).toBe(1);
+  });
+  it('deduplicates paraphrased titles using one stable finding identity', () => {
+    const reworded = { ...sample, title: 'Input handling fails for empty arrays' };
+    expect(fingerprint(sample)).toBe(fingerprint(reworded));
+    const { valid, excluded } = validateFindings([sample, reworded], context, config);
+    expect(valid).toHaveLength(1);
+    expect(excluded).toBe(1);
   });
   it('rejects invalid schema payloads', () => {
     expect(
