@@ -17,4 +17,12 @@ for (const file of files) {
     throw new Error(file + ': Vitest badge must match ' + passed + ' passing tests');
   }
 }
-console.log('Verified Vitest badges in 3 READMEs: ' + passed + ' passed, ' + failed + ' failed, ' + skipped + ' skipped');
+console.log(
+  'Verified Vitest badges in 3 READMEs: ' +
+    passed +
+    ' passed, ' +
+    failed +
+    ' failed, ' +
+    skipped +
+    ' skipped',
+);

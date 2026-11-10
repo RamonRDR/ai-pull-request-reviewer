@@ -28,12 +28,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: ESLint
         run: npm run lint
-      - name: Canonical formatting diagnostic
-        shell: bash
-        run: |
-          npx prettier --write README.md README.pt-BR.md README.es.md scripts/check-test-badges.mjs
-          node --input-type=module -e 'import fs from "node:fs"; for (const path of ["README.md","README.pt-BR.md","README.es.md","scripts/check-test-badges.mjs"]) console.log("__FORMATTED_FILE__"+JSON.stringify({path,content:fs.readFileSync(path,"utf8")}))'
-          git diff --quiet
+      - name: Prettier
+        run: npm run format:check
       - name: TypeScript strict check
         run: npm run typecheck
       - name: Vitest unit and integration mocks

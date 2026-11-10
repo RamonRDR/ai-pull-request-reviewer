@@ -57,7 +57,7 @@ No hay servidor, bases de datos, Redis, Docker, Python, pytest, E2E de navegador
 
 ## 4. Arquitectura
 
-~~~mermaid
+```mermaid
 flowchart LR
   PR[GitHub PR] --> API[Octokit REST]
   API --> DIFF[Diff parser and safe context]
@@ -65,7 +65,7 @@ flowchart LR
   LLM --> VALIDATE[Zod, changed-line anchors and deduplication]
   VALIDATE --> REPORT[Local Markdown report]
   VALIDATE -. triple opt-in, real only .-> COMMENTS[GitHub comments]
-~~~
+```
 
 El revisor trata los diffs como **datos no confiables** y no ejecuta el código analizado. Más información: [arquitectura](docs/ARCHITECTURE.md), [decisiones técnicas](docs/DECISIONS.md) y [modelo de amenazas](docs/SECURITY.md).
 
@@ -73,7 +73,7 @@ El revisor trata los diffs como **datos no confiables** y no ejecuta el código 
 
 Node.js **22 o superior** y npm. CI usa Node.js 26. Para PR reales se necesita token limitado al repositorio con **Contents: read** y **Pull requests: read**. La demo no requiere credenciales ni servicios externos.
 
-~~~bash
+```bash
 git clone https://github.com/RamonRDR/ai-pull-request-reviewer.git
 cd ai-pull-request-reviewer
 npm ci
@@ -81,7 +81,7 @@ npm run typecheck
 npm test
 npm run demo
 npm run evaluate
-~~~
+```
 
 Se utiliza el lockfile versionado. No incluya claves ni tokens en Git.
 
@@ -89,22 +89,22 @@ Se utiliza el lockfile versionado. No incluya claves ni tokens en Git.
 
 Las reglas se definen en [`.ai-pr-reviewer.json`](.ai-pr-reviewer.json) y se validan antes de ejecutar.
 
-| Setting | Purpose |
-| --- | --- |
-| `categories` / `minSeverity` | Review categories and minimum severity |
-| `ignore` | Additional glob patterns to exclude |
-| `maxFiles` / `maxContextChars` | Scope and input character limit |
+| Setting                              | Purpose                                           |
+| ------------------------------------ | ------------------------------------------------- |
+| `categories` / `minSeverity`         | Review categories and minimum severity            |
+| `ignore`                             | Additional glob patterns to exclude               |
+| `maxFiles` / `maxContextChars`       | Scope and input character limit                   |
 | `maxInputTokens` / `maxOutputTokens` | Preflight input estimate and model output ceiling |
-| `maxCostUsd` | Estimated USD cost ceiling per review |
-| `maxComments` | Maximum accepted findings |
-| `language` / `customRules` | Report language and repository rules |
-| `enablePublishing` | Disabled by default; additional opt-in required |
+| `maxCostUsd`                         | Estimated USD cost ceiling per review             |
+| `maxComments`                        | Maximum accepted findings                         |
+| `language` / `customRules`           | Report language and repository rules              |
+| `enablePublishing`                   | Disabled by default; additional opt-in required   |
 
 Consulte [`.env.example`](.env.example). La CLI **no carga archivos .env automáticamente**; configure las variables en el entorno o un gestor de secretos. El modo predeterminado solo genera informes.
 
 ## 7. CLI y uso de GitHub API
 
-~~~bash
+```bash
 # Read-only live PR metadata with a synthetic-only provider:
 export GITHUB_TOKEN=YOUR_SCOPED_TOKEN
 npm run build
@@ -113,7 +113,7 @@ node dist/src/cli.js --repo OWNER/REPO --pr 123 --provider mock
 # Offline sample (no token, paid API, or real PR needed):
 npm run demo
 # Generated: reports/demo.md
-~~~
+```
 
 El proveedor `mock` consulta metadatos reales, pero solo responde a marcadores sintéticos como `DEMO_BUG` y `DEMO_EDGE`. Un resultado sin hallazgos **no certifica que el PR sea correcto**.
 
@@ -121,14 +121,14 @@ El proveedor `mock` consulta metadatos reales, pero solo responde a marcadores s
 
 **Opcional y con costo:** utilice `--provider openai --allow-external-llm`. Compruebe las tarifas actuales, configure precios positivos por millón de tokens y límites conservadores para `maxInputTokens`, `maxOutputTokens` y `maxCostUsd`.
 
-~~~bash
+```bash
 export OPENAI_API_KEY=YOUR_KEY
 export LLM_MODEL=gpt-4.1-mini
 export LLM_INPUT_PRICE_PER_MILLION=YOUR_VERIFIED_INPUT_PRICE
 export LLM_OUTPUT_PRICE_PER_MILLION=YOUR_VERIFIED_OUTPUT_PRICE
 # GITHUB_TOKEN must also be set; use PUBLIC repository code only.
 node dist/src/cli.js --repo OWNER/PUBLIC_REPO --pr 123 --provider openai --allow-external-llm
-~~~
+```
 
 La CLI bloquea el uso remoto de modelos con **repositorios privados**. La redacción de secretos es imperfecta, así que no envíe código confidencial. Los costos son estimaciones, nunca garantías de facturación. CI obligatorio **no realiza llamadas pagadas**.
 
@@ -142,7 +142,7 @@ Normalmente se genera únicamente un informe Markdown local. Publicar exige `--p
 
 ## 11. Pruebas, calidad y GitHub Actions
 
-~~~bash
+```bash
 npm run lint
 npm run format:check
 npm run typecheck
@@ -150,7 +150,7 @@ npm test
 npm run test:integration
 npm run evaluate
 npm run build
-~~~
+```
 
 El [CI](.github/workflows/ci.yml) ejecuta `npm ci`, ESLint, Prettier, TypeScript strict, Vitest, evaluación sintética, compilación, artefacto de demostración y auditoría de dependencias de producción en runners alojados de GitHub. El [workflow manual de solo lectura](.github/workflows/demo.yml) admite un número opcional de PR y no publica comentarios. Sin runners propios, despliegue ni uso de IA pagada.
 
@@ -170,18 +170,18 @@ Ejecute `npm run demo` para obtener `reports/demo.md`, identificado como **SIMUL
 
 ## 15. Estructura del repositorio
 
-| Path | Responsibility |
-| --- | --- |
-| `src/github.ts` / `src/diff.ts` | Octokit REST, pagination and changed-line parsing |
-| `src/context.ts` / `src/config.ts` | Filters, redaction, limits and validated settings |
-| `src/provider.ts` | Deterministic mock and opt-in OpenAI adapter |
-| `src/models.ts` / `src/review.ts` | Finding schemas, severity, anchoring and deduplication |
-| `src/report.ts` / `src/publish.ts` | Markdown output and gated review comments |
-| `src/cli.ts` / `src/demo.ts` / `src/evaluate.ts` | Commands, offline demo and synthetic fixture evaluation |
-| `tests/` | Vitest unit tests and mocked integration tests |
-| `.github/workflows/ci.yml` | CI quality gates, evaluation, build, audit and demo artifact |
-| `.github/workflows/demo.yml` | Manually triggered read-only review |
-| `docs/` / `examples/` | Architecture, ADRs, security, demo and example outputs |
+| Path                                             | Responsibility                                               |
+| ------------------------------------------------ | ------------------------------------------------------------ |
+| `src/github.ts` / `src/diff.ts`                  | Octokit REST, pagination and changed-line parsing            |
+| `src/context.ts` / `src/config.ts`               | Filters, redaction, limits and validated settings            |
+| `src/provider.ts`                                | Deterministic mock and opt-in OpenAI adapter                 |
+| `src/models.ts` / `src/review.ts`                | Finding schemas, severity, anchoring and deduplication       |
+| `src/report.ts` / `src/publish.ts`               | Markdown output and gated review comments                    |
+| `src/cli.ts` / `src/demo.ts` / `src/evaluate.ts` | Commands, offline demo and synthetic fixture evaluation      |
+| `tests/`                                         | Vitest unit tests and mocked integration tests               |
+| `.github/workflows/ci.yml`                       | CI quality gates, evaluation, build, audit and demo artifact |
+| `.github/workflows/demo.yml`                     | Manually triggered read-only review                          |
+| `docs/` / `examples/`                            | Architecture, ADRs, security, demo and example outputs       |
 
 ## 16. Limitaciones conocidas
 
