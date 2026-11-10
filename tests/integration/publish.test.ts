@@ -45,6 +45,62 @@ describe('protected review publishing', () => {
       else process.env.ALLOW_GITHUB_COMMENTS = before;
     }
   });
+  it('allows publishing to the same repository despite different CLI casing', async () => {
+    const before = process.env.ALLOW_GITHUB_COMMENTS;
+    process.env.ALLOW_GITHUB_COMMENTS = 'true';
+    const createReview = vi.fn().mockResolvedValue({});
+    const get = vi.fn().mockResolvedValue({
+      data: { head: { sha: demoPr.headSha } },
+    });
+    const paginate = vi.fn().mockResolvedValue([]);
+    const client = {
+      paginate,
+      pulls: { get, listReviewComments: vi.fn(), listReviews: vi.fn(), createReview },
+    } as unknown as Octokit;
+    const finding = {
+      path: 'src/average.ts',
+      line: 3,
+      category: 'bug' as const,
+      severity: 'medium' as const,
+      title: 'Incorrect denominator for the average',
+      explanation: 'The divisor is increased unnecessarily and gives inaccurate output.',
+      suggestion: 'Use the actual number of input values as the divisor.',
+    };
+    try {
+      expect(
+        await publishReview(
+          client,
+          { ...demoPr, repo: 'Example/Synthetic-Demo' },
+          { ...result, findings: [finding] },
+          configSchema.parse({ enablePublishing: true }),
+          true,
+        ),
+      ).toBe(1);
+      expect(createReview).toHaveBeenCalledOnce();
+      expect(get).toHaveBeenCalledOnce();
+    } finally {
+      if (before === undefined) delete process.env.ALLOW_GITHUB_COMMENTS;
+      else process.env.ALLOW_GITHUB_COMMENTS = before;
+    }
+  });
+  it('still rejects genuine forks even when names differ by capitalization', async () => {
+    const before = process.env.ALLOW_GITHUB_COMMENTS;
+    process.env.ALLOW_GITHUB_COMMENTS = 'true';
+    try {
+      await expect(
+        publishReview(
+          {} as Octokit,
+          { ...demoPr, repo: 'Example/Synthetic-Demo', headRepo: 'other/synthetic-demo' },
+          result,
+          configSchema.parse({ enablePublishing: true }),
+          true,
+        ),
+      ).rejects.toThrow(/fork/);
+    } finally {
+      if (before === undefined) delete process.env.ALLOW_GITHUB_COMMENTS;
+      else process.env.ALLOW_GITHUB_COMMENTS = before;
+    }
+  });
   it('does not post when there are no new findings', async () => {
     const before = process.env.ALLOW_GITHUB_COMMENTS;
     process.env.ALLOW_GITHUB_COMMENTS = 'true';

@@ -22,7 +22,7 @@
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%20%26%20manual-2088FF)](.github/workflows/ci.yml)
 [![Read-only default](https://img.shields.io/badge/reviews-read--only%20default-6B7280)](.ai-pr-reviewer.json)
 
-[![Vitest 34 passing](https://img.shields.io/badge/Vitest-34%20passing-6E9F18)](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml)
+[![Vitest 36 passing](https://img.shields.io/badge/Vitest-36%20passing-6E9F18)](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml)
 [![ESLint](https://img.shields.io/badge/ESLint-lint-4B32C3)](eslint.config.mjs)
 [![Prettier](https://img.shields.io/badge/Prettier-format%20checked-F7B93E)](.prettierrc.json)
 [![TypeScript strict](https://img.shields.io/badge/TypeScript-strict%20checked-3178C6)](tsconfig.json)
@@ -32,7 +32,7 @@
 
 </div>
 
-> **Project status:** MVP implemented in [PR #1](https://github.com/RamonRDR/ai-pull-request-reviewer/pull/1), which is **open for review**. The [verified CI run](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml) passed **34 Vitest tests (0 failures, 0 skips)**, TypeScript, lint, formatting, build, the offline demo, mock evaluation and production dependency audit. No merge, live LLM analysis or real PR publication has been authorized.
+> **Project status:** MVP implemented in [PR #1](https://github.com/RamonRDR/ai-pull-request-reviewer/pull/1), which is **open for review**. The [verified CI run](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml) passed **36 Vitest tests (0 failures, 0 skips)**, TypeScript, lint, formatting, build, the offline demo, mock evaluation and production dependency audit. No merge, live LLM analysis or real PR publication has been authorized.
 
 ## 1. Overview
 
@@ -154,7 +154,7 @@ npm run build
 
 [CI](.github/workflows/ci.yml) executes `npm ci`, ESLint, Prettier, strict TypeScript checking, Vitest, the synthetic evaluation, build, demo report upload and production dependency audit using GitHub-hosted runners. The [manual read-only workflow](.github/workflows/demo.yml) accepts an optional PR number and does not post comments. Neither workflow uses self-hosted runners, deploys, or calls paid AI.
 
-**Verified reference PR check:** [34 passed, 0 failed, 0 skipped](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml). The Vitest badge displays that **confirmed test count**, not source-file estimates. The CI verifies the three README test badges against its actual Vitest JSON report; if the suite count changes, update all three badges before the check can pass. No coverage percentage is claimed because coverage is not measured.
+**Verified reference PR check:** [36 passed, 0 failed, 0 skipped](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml). The Vitest badge displays that **confirmed test count**, not source-file estimates. The CI verifies the three README test badges against its actual Vitest JSON report; if the suite count changes, update all three badges before the check can pass. No coverage percentage is claimed because coverage is not measured.
 
 ## 12. Evaluation methodology
 

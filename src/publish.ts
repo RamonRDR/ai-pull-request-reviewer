@@ -38,7 +38,10 @@ export async function publishReview(
   }
   if (result.source === 'mock')
     throw new Error('Simulated findings cannot be published as real reviews');
-  if (pr.headRepo !== pr.repo) throw new Error('Publishing to fork pull requests is disabled');
+  // GitHub's owner/repository names are case-insensitive; user CLI casing may differ.
+  if (pr.headRepo?.toLowerCase() !== pr.repo.toLowerCase()) {
+    throw new Error('Publishing to fork pull requests is disabled');
+  }
   if (result.truncated) throw new Error('Refusing publication from a partial/incomplete review');
   const { owner, repo } = parseRepo(pr.repo);
   const existing = await api.paginate(api.pulls.listReviewComments, {
