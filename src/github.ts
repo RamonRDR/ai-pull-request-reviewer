@@ -23,6 +23,8 @@ export async function fetchPullRequest(
   const { owner, repo } = parseRepo(repository);
   const response = await api.pulls.get({ owner, repo, pull_number: number });
   const pr = response.data;
+  const headSha = pr.head.sha;
+  if (!/^[a-f0-9]{40}$/i.test(headSha)) throw new Error('Invalid pull request head SHA');
   // Octokit's pagination stops at GitHub's 3,000-file API ceiling.
   const files = await api.paginate(api.pulls.listFiles, {
     owner,
@@ -30,6 +32,12 @@ export async function fetchPullRequest(
     pull_number: number,
     per_page: 100,
   });
+  // A PR may receive a new commit while GitHub is paginating its changed files.
+  // Never mix patches from multiple revisions into a single analysis.
+  const afterFiles = await api.pulls.get({ owner, repo, pull_number: number });
+  if (afterFiles.data.head.sha !== headSha) {
+    throw new Error('Pull request head changed while fetching files; retry the review');
+  }
   const mapped: ChangedFile[] = files.map((file) => ({
     filename: file.filename,
     status: file.status,
@@ -44,6 +52,7 @@ export async function fetchPullRequest(
     title: pr.title,
     base: pr.base.ref,
     head: pr.head.ref,
+    headSha,
     headRepo: pr.head.repo?.full_name ?? null,
     changedFiles: pr.changed_files,
     files: mapped,

@@ -39,7 +39,11 @@ export function redact(text: string): string {
       '[REDACTED]',
     )
     .replace(
-      /((?:password|secret|api[_-]?key|access[_-]?token|private[_-]?key)\s*[:=]\s*['"]?)[^\s'",;]+/gi,
+      /((?:["']?(?:password|secret|api[_-]?key|access[_-]?token|private[_-]?key)["']?)\s*[:=]\s*)(["'])(?:\\.|(?!\2)[^\\\r\n])*\2/gi,
+      '$1$2[REDACTED]$2',
+    )
+    .replace(
+      /((?:["']?(?:password|secret|api[_-]?key|access[_-]?token|private[_-]?key)["']?)\s*[:=]\s*)[^\s'",;]+/gi,
       '$1[REDACTED]',
     )
     .replace(

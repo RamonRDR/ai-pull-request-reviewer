@@ -12,12 +12,8 @@ import type { ReviewProvider } from './provider.js';
 import { markdownReport } from './report.js';
 
 export function fingerprint(finding: Finding): string {
-  const key = [
-    finding.path,
-    finding.line,
-    finding.category,
-    finding.title.toLowerCase().trim(),
-  ].join(':');
+  // Reworded model titles must not produce duplicate reviews for the same anchor.
+  const key = [finding.path, finding.line, finding.category].join(':');
   return createHash('sha256').update(key).digest('hex').slice(0, 20);
 }
 
@@ -39,7 +35,7 @@ export function validateFindings(
     const item = checked.data;
     const file = context.files.find((entry) => entry.path === item.path);
     const anchored = file?.added.some((added) => added.line === item.line);
-    const distinct = item.path + ':' + item.line + ':' + item.category;
+    const distinct = fingerprint(item);
     const relevant =
       config.categories.includes(item.category) &&
       severityOrder[item.severity] >= severityOrder[config.minSeverity];

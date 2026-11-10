@@ -42,6 +42,7 @@ export interface PullRequestData {
   title: string;
   base: string;
   head: string;
+  headSha: string;
   headRepo: string | null;
   changedFiles: number;
   files: ChangedFile[];

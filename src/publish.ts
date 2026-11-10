@@ -61,6 +61,13 @@ export async function publishReview(
     (finding) => !existingBodies.includes(marker + fingerprint(finding) + ' -->'),
   );
   if (!newFindings.length) return 0;
+  // Fail closed if the PR has moved since the reviewed diff was captured.
+  // commit_id additionally pins GitHub's line anchors to the analyzed commit.
+  if (!/^[a-f0-9]{40}$/i.test(pr.headSha)) throw new Error('Invalid reviewed head SHA');
+  const current = await api.pulls.get({ owner, repo, pull_number: pr.number });
+  if (current.data.head.sha !== pr.headSha) {
+    throw new Error('Pull request head changed since analysis; refusing stale comments');
+  }
   const comments = newFindings.slice(0, config.maxComments).map((finding) => ({
     path: finding.path,
     line: finding.line,
@@ -72,6 +79,7 @@ export async function publishReview(
     owner,
     repo,
     pull_number: pr.number,
+    commit_id: pr.headSha,
     event: 'COMMENT',
     body:
       'AI Pull Request Reviewer: ' +

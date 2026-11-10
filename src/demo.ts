@@ -22,6 +22,7 @@ export const demoPr: PullRequestData = {
   title: 'Synthetic arithmetic sample',
   base: 'main',
   head: 'demo',
+  headSha: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   headRepo: 'example/synthetic-demo',
   changedFiles: 2,
   files: [
