@@ -89,16 +89,16 @@ A instalação utiliza o lockfile versionado. Nunca publique chaves nem tokens.
 
 As regras ficam em [`.ai-pr-reviewer.json`](.ai-pr-reviewer.json) e são validadas antes da análise.
 
-| Configuração | Finalidade |
-| --- | --- |
-| `categories` / `minSeverity` | Categorias da revisão e gravidade mínima |
-| `ignore` | Padrões glob adicionais para exclusão |
-| `maxFiles` / `maxContextChars` | Escopo e limite de caracteres da entrada |
+| Configuração                         | Finalidade                                                |
+| ------------------------------------ | --------------------------------------------------------- |
+| `categories` / `minSeverity`         | Categorias da revisão e gravidade mínima                  |
+| `ignore`                             | Padrões glob adicionais para exclusão                     |
+| `maxFiles` / `maxContextChars`       | Escopo e limite de caracteres da entrada                  |
 | `maxInputTokens` / `maxOutputTokens` | Estimativa inicial de entrada e limite da saída do modelo |
-| `maxCostUsd` | Teto estimado do custo em USD por revisão |
-| `maxComments` | Quantidade máxima de observações aceitas |
-| `language` / `customRules` | Idioma do relatório e regras do repositório |
-| `enablePublishing` | Desativado por padrão; requer outras autorizações |
+| `maxCostUsd`                         | Teto estimado do custo em USD por revisão                 |
+| `maxComments`                        | Quantidade máxima de observações aceitas                  |
+| `language` / `customRules`           | Idioma do relatório e regras do repositório               |
+| `enablePublishing`                   | Desativado por padrão; requer outras autorizações         |
 
 Consulte [`.env.example`](.env.example). A CLI **não carrega arquivos .env automaticamente**; defina variáveis no ambiente ou gerenciador de segredos. O padrão é gerar somente relatórios.
 
@@ -170,18 +170,18 @@ Execute `npm run demo` para gerar `reports/demo.md` com o aviso **SIMULATED DEMO
 
 ## 15. Estrutura do projeto
 
-| Caminho | Responsabilidade |
-| --- | --- |
-| `src/github.ts` / `src/diff.ts` | Octokit REST, paginação e interpretação das linhas alteradas |
-| `src/context.ts` / `src/config.ts` | Filtros, redação de segredos, limites e regras validadas |
-| `src/provider.ts` | Mock determinístico e adaptador OpenAI opcional |
-| `src/models.ts` / `src/review.ts` | Schemas, gravidade, localização e deduplicação |
-| `src/report.ts` / `src/publish.ts` | Relatório Markdown e comentários protegidos |
-| `src/cli.ts` / `src/demo.ts` / `src/evaluate.ts` | Comandos, demonstração local e avaliação sintética |
-| `tests/` | Testes unitários e testes de integração simulados com Vitest |
-| `.github/workflows/ci.yml` | Qualidade, avaliação, build, auditoria e relatório de demonstração |
-| `.github/workflows/demo.yml` | Revisão manual somente leitura |
-| `docs/` / `examples/` | Arquitetura, ADRs, segurança, demonstração e exemplos |
+| Caminho                                          | Responsabilidade                                                   |
+| ------------------------------------------------ | ------------------------------------------------------------------ |
+| `src/github.ts` / `src/diff.ts`                  | Octokit REST, paginação e interpretação das linhas alteradas       |
+| `src/context.ts` / `src/config.ts`               | Filtros, redação de segredos, limites e regras validadas           |
+| `src/provider.ts`                                | Mock determinístico e adaptador OpenAI opcional                    |
+| `src/models.ts` / `src/review.ts`                | Schemas, gravidade, localização e deduplicação                     |
+| `src/report.ts` / `src/publish.ts`               | Relatório Markdown e comentários protegidos                        |
+| `src/cli.ts` / `src/demo.ts` / `src/evaluate.ts` | Comandos, demonstração local e avaliação sintética                 |
+| `tests/`                                         | Testes unitários e testes de integração simulados com Vitest       |
+| `.github/workflows/ci.yml`                       | Qualidade, avaliação, build, auditoria e relatório de demonstração |
+| `.github/workflows/demo.yml`                     | Revisão manual somente leitura                                     |
+| `docs/` / `examples/`                            | Arquitetura, ADRs, segurança, demonstração e exemplos              |
 
 ## 16. Limitações conhecidas
 
