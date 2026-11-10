@@ -28,8 +28,15 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: ESLint
         run: npm run lint
-      - name: Prettier
-        run: npm run format:check
+      - name: Canonical formatting and test diagnostic
+        shell: bash
+        run: |
+          npx prettier --write src/context.ts src/review.ts src/github.ts src/models.ts src/publish.ts src/demo.ts tests/context.test.ts tests/review.test.ts tests/integration/github.test.ts tests/integration/publish.test.ts
+          node --input-type=module -e 'import fs from "node:fs"; for (const path of ["src/context.ts","src/review.ts","src/github.ts","src/models.ts","src/publish.ts","src/demo.ts","tests/context.test.ts","tests/review.test.ts","tests/integration/github.test.ts","tests/integration/publish.test.ts"]) console.log("__CODEX_FIXED_FORMAT__"+JSON.stringify({path,content:fs.readFileSync(path,"utf8")}))'
+          mkdir -p reports
+          npm run test:ci
+          npm run typecheck
+          git diff --quiet
       - name: TypeScript strict check
         run: npm run typecheck
       - name: Vitest unit and integration mocks

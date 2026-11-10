@@ -4,6 +4,7 @@ import { prepareContext } from '../src/context.js';
 import { validateFindings, runReview, fingerprint } from '../src/review.js';
 import { MockProvider } from '../src/provider.js';
 import { demoPr } from '../src/demo.js';
+import type { Finding } from '../src/models.js';
 
 const sample = {
   path: 'src/fixture.ts',
@@ -13,7 +14,7 @@ const sample = {
   title: 'This change breaks input handling',
   explanation: 'This condition fails when the supplied array has no elements.',
   suggestion: 'Guard against empty input before running the calculation.',
-};
+} satisfies Finding;
 
 describe('finding validation', () => {
   const config = configSchema.parse({});
