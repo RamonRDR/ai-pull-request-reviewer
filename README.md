@@ -154,7 +154,7 @@ npm run build
 
 [CI](.github/workflows/ci.yml) executes `npm ci`, ESLint, Prettier, strict TypeScript checking, Vitest, the synthetic evaluation, build, demo report upload and production dependency audit using GitHub-hosted runners. The [manual read-only workflow](.github/workflows/demo.yml) accepts an optional PR number and does not post comments. Neither workflow uses self-hosted runners, deploys, or calls paid AI.
 
-**Last verified PR check:** [26 passed, 0 failed, 0 skipped](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/runs/42421599236). The Vitest badge displays that **confirmed test count**, not source-file estimates. The CI verifies the three README test badges against its actual Vitest JSON report; if the suite count changes, update all three badges before the check can pass. No coverage percentage is claimed because coverage is not measured.
+**Verified reference PR check:** [26 passed, 0 failed, 0 skipped](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/runs/42421599236). The Vitest badge displays that **confirmed test count**, not source-file estimates. The CI verifies the three README test badges against its actual Vitest JSON report; if the suite count changes, update all three badges before the check can pass. No coverage percentage is claimed because coverage is not measured.
 
 ## 12. Evaluation methodology
 

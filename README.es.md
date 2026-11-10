@@ -89,30 +89,30 @@ Se utiliza el lockfile versionado. No incluya claves ni tokens en Git.
 
 Las reglas se definen en [`.ai-pr-reviewer.json`](.ai-pr-reviewer.json) y se validan antes de ejecutar.
 
-| Setting                              | Purpose                                           |
-| ------------------------------------ | ------------------------------------------------- |
-| `categories` / `minSeverity`         | Review categories and minimum severity            |
-| `ignore`                             | Additional glob patterns to exclude               |
-| `maxFiles` / `maxContextChars`       | Scope and input character limit                   |
-| `maxInputTokens` / `maxOutputTokens` | Preflight input estimate and model output ceiling |
-| `maxCostUsd`                         | Estimated USD cost ceiling per review             |
-| `maxComments`                        | Maximum accepted findings                         |
-| `language` / `customRules`           | Report language and repository rules              |
-| `enablePublishing`                   | Disabled by default; additional opt-in required   |
+| Configuración | Finalidad |
+| --- | --- |
+| `categories` / `minSeverity` | Categorías de revisión y gravedad mínima |
+| `ignore` | Patrones glob adicionales para excluir |
+| `maxFiles` / `maxContextChars` | Alcance y límite de caracteres de entrada |
+| `maxInputTokens` / `maxOutputTokens` | Estimación previa de entrada y límite de salida del modelo |
+| `maxCostUsd` | Límite estimado del costo en USD por revisión |
+| `maxComments` | Cantidad máxima de hallazgos aceptados |
+| `language` / `customRules` | Idioma del informe y reglas del repositorio |
+| `enablePublishing` | Deshabilitado por defecto; necesita otros permisos |
 
 Consulte [`.env.example`](.env.example). La CLI **no carga archivos .env automáticamente**; configure las variables en el entorno o un gestor de secretos. El modo predeterminado solo genera informes.
 
 ## 7. CLI y uso de GitHub API
 
 ```bash
-# Read-only live PR metadata with a synthetic-only provider:
+# Metadatos de PR real, solo lectura y con proveedor simulado:
 export GITHUB_TOKEN=YOUR_SCOPED_TOKEN
 npm run build
 node dist/src/cli.js --repo OWNER/REPO --pr 123 --provider mock
 
-# Offline sample (no token, paid API, or real PR needed):
+# Demo sin conexión (no requiere token, API pagada ni PR real):
 npm run demo
-# Generated: reports/demo.md
+# Generado: reports/demo.md
 ```
 
 El proveedor `mock` consulta metadatos reales, pero solo responde a marcadores sintéticos como `DEMO_BUG` y `DEMO_EDGE`. Un resultado sin hallazgos **no certifica que el PR sea correcto**.
@@ -126,7 +126,7 @@ export OPENAI_API_KEY=YOUR_KEY
 export LLM_MODEL=gpt-4.1-mini
 export LLM_INPUT_PRICE_PER_MILLION=YOUR_VERIFIED_INPUT_PRICE
 export LLM_OUTPUT_PRICE_PER_MILLION=YOUR_VERIFIED_OUTPUT_PRICE
-# GITHUB_TOKEN must also be set; use PUBLIC repository code only.
+# Configure también GITHUB_TOKEN; utilice solo repositorios PÚBLICOS.
 node dist/src/cli.js --repo OWNER/PUBLIC_REPO --pr 123 --provider openai --allow-external-llm
 ```
 
@@ -154,7 +154,7 @@ npm run build
 
 El [CI](.github/workflows/ci.yml) ejecuta `npm ci`, ESLint, Prettier, TypeScript strict, Vitest, evaluación sintética, compilación, artefacto de demostración y auditoría de dependencias de producción en runners alojados de GitHub. El [workflow manual de solo lectura](.github/workflows/demo.yml) admite un número opcional de PR y no publica comentarios. Sin runners propios, despliegue ni uso de IA pagada.
 
-**Última ejecución verificada:** [26 aprobadas, 0 fallidas, 0 omitidas](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/runs/42421599236). El badge presenta la **cantidad real comprobada**, no el número de archivos. CI compara los tres badges README con el informe JSON de Vitest; si cambia el número de pruebas, deben actualizarse los tres antes de superar el check. No se afirma cobertura porcentual porque no se mide.
+**Ejecución de referencia verificada:** [26 aprobadas, 0 fallidas, 0 omitidas](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/runs/42421599236). El badge presenta la **cantidad real comprobada**, no el número de archivos. CI compara los tres badges README con el informe JSON de Vitest; si cambia el número de pruebas, deben actualizarse los tres antes de superar el check. No se afirma cobertura porcentual porque no se mide.
 
 ## 12. Evaluación
 
@@ -170,18 +170,18 @@ Ejecute `npm run demo` para obtener `reports/demo.md`, identificado como **SIMUL
 
 ## 15. Estructura del repositorio
 
-| Path                                             | Responsibility                                               |
-| ------------------------------------------------ | ------------------------------------------------------------ |
-| `src/github.ts` / `src/diff.ts`                  | Octokit REST, pagination and changed-line parsing            |
-| `src/context.ts` / `src/config.ts`               | Filters, redaction, limits and validated settings            |
-| `src/provider.ts`                                | Deterministic mock and opt-in OpenAI adapter                 |
-| `src/models.ts` / `src/review.ts`                | Finding schemas, severity, anchoring and deduplication       |
-| `src/report.ts` / `src/publish.ts`               | Markdown output and gated review comments                    |
-| `src/cli.ts` / `src/demo.ts` / `src/evaluate.ts` | Commands, offline demo and synthetic fixture evaluation      |
-| `tests/`                                         | Vitest unit tests and mocked integration tests               |
-| `.github/workflows/ci.yml`                       | CI quality gates, evaluation, build, audit and demo artifact |
-| `.github/workflows/demo.yml`                     | Manually triggered read-only review                          |
-| `docs/` / `examples/`                            | Architecture, ADRs, security, demo and example outputs       |
+| Ruta | Responsabilidad |
+| --- | --- |
+| `src/github.ts` / `src/diff.ts` | Octokit REST, paginación y análisis de líneas modificadas |
+| `src/context.ts` / `src/config.ts` | Filtros, redacción de secretos, límites y reglas validadas |
+| `src/provider.ts` | Mock determinista y adaptador opcional OpenAI |
+| `src/models.ts` / `src/review.ts` | Esquemas, gravedad, ubicación y eliminación de duplicados |
+| `src/report.ts` / `src/publish.ts` | Informe Markdown y comentarios protegidos |
+| `src/cli.ts` / `src/demo.ts` / `src/evaluate.ts` | Comandos, demo local y evaluación sintética |
+| `tests/` | Pruebas unitarias y de integración simuladas con Vitest |
+| `.github/workflows/ci.yml` | Calidad, evaluación, compilación, auditoría y artefacto de demo |
+| `.github/workflows/demo.yml` | Revisión manual de solo lectura |
+| `docs/` / `examples/` | Arquitectura, ADR, seguridad, demo y ejemplos |
 
 ## 16. Limitaciones conocidas
 
