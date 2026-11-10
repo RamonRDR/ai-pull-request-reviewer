@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint, format, types, tests, build, synthetic eval
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+      - name: Install dependencies without running audit during install
+        run: npm ci --no-audit --no-fund
+      - name: ESLint
+        run: npm run lint
+      - name: Prettier
+        run: npm run format:check
+      - name: TypeScript strict check
+        run: npm run typecheck
+      - name: Vitest unit and integration mocks
+        run: |
+          mkdir -p reports
+          npm run test:ci
+      - name: Verify README test-count badges
+        run: npm run badges:check
+      - name: Synthetic regression evaluation (no real LLM)
+        run: npm run evaluate
+      - name: Production build
+        run: npm run build
+      - name: Reproducible offline demo (no paid API)
+        run: npm run demo
+      - name: Upload demo Markdown
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulated-review-report
+          path: reports/demo.md
+          if-no-files-found: error
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high

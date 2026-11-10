@@ -218,3 +218,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Node.js / TypeScript / local reviewer artifacts
+node_modules/
+dist/
+coverage/
+reports/
+*.tsbuildinfo
+.env.local
+.env.*.local
+npm-debug.log*
