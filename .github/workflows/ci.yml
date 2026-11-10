@@ -33,7 +33,11 @@ jobs:
       - name: TypeScript strict check
         run: npm run typecheck
       - name: Vitest unit and integration mocks
-        run: npm test
+        run: |
+          mkdir -p reports
+          npm run test:ci
+      - name: Verify README test-count badges
+        run: npm run badges:check
       - name: Synthetic regression evaluation (no real LLM)
         run: npm run evaluate
       - name: Production build

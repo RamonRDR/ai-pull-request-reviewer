@@ -1,80 +1,201 @@
-# AI Pull Request Reviewer
+<div align="center">
 
-[![CI](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml) · [Licencia MIT](LICENSE) · [English](README.md) · [Português](README.pt-BR.md)
+# AI Pull Request Reviewer 🤖
 
-**Revisor de pull requests centrado en la seguridad, con IA opcional y control humano.**
+**Revisiones de PR seguras, comentarios útiles y decisiones humanas.**
 
-> **Estado: MVP de portafolio.** El proveedor predeterminado es un mock determinista claramente marcado; **no detecta errores reales**. Las llamadas pagadas y los comentarios en PR reales están desactivados inicialmente.
+[🇺🇸 English](README.md) · [🇧🇷 Português](README.pt-BR.md) · [🇪🇸 Español](README.es.md)
 
-## Objetivo y funcionalidades
+[![CI](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml)
+[![Node.js 26 (CI)](https://img.shields.io/badge/Node.js-26%20CI-339933)](https://nodejs.org/)
+[![MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![EN PT ES](https://img.shields.io/badge/docs-EN%20%7C%20PT--BR%20%7C%20ES-6C63FF)](README.md)
 
-Consulta PR mediante GitHub REST y Octokit, lee metadatos, ramas, archivos y diffs, localiza líneas agregadas, excluye artefactos, redacta patrones de secretos, limita el contexto, valida respuestas con Zod, clasifica hallazgos, elimina duplicados y genera informes Markdown. Publicar comentarios exige una autorización triple y nunca aprueba, rechaza ni fusiona PR automáticamente.
+[![TypeScript 5.9](https://img.shields.io/badge/TypeScript-5.9-3178C6)](https://www.typescriptlang.org/)
+[![Octokit 22](https://img.shields.io/badge/Octokit-22-24292F)](https://github.com/octokit/rest.js)
+[![GitHub REST API](https://img.shields.io/badge/GitHub-REST%20API-181717)](https://docs.github.com/en/rest)
+[![Zod 4](https://img.shields.io/badge/Zod-4-3068B7)](https://zod.dev/)
+[![OpenAI SDK 6 (optional)](https://img.shields.io/badge/OpenAI%20SDK-6%20optional-626262)](https://github.com/openai/openai-node)
 
-## Tecnologías
+[![CLI](https://img.shields.io/badge/TypeScript-CLI-3178C6)](src/cli.ts)
+[![tsx 4](https://img.shields.io/badge/tsx-4-474747)](https://github.com/privatenumber/tsx)
+[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%20%26%20manual-2088FF)](.github/workflows/ci.yml)
+[![Read-only default](https://img.shields.io/badge/reviews-read--only%20default-6B7280)](.ai-pr-reviewer.json)
 
-Node.js 26 LTS para CI, TypeScript strict, Octokit, OpenAI SDK (adaptador optativo), Zod, Vitest, ESLint, Prettier y GitHub Actions. Sin servidor, base de datos ni colas.
+[![Vitest 26 passing](https://img.shields.io/badge/Vitest-26%20passing-6E9F18)](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/runs/42421599236)
+[![ESLint](https://img.shields.io/badge/ESLint-lint-4B32C3)](eslint.config.mjs)
+[![Prettier](https://img.shields.io/badge/Prettier-format%20checked-F7B93E)](.prettierrc.json)
+[![TypeScript strict](https://img.shields.io/badge/TypeScript-strict%20checked-3178C6)](tsconfig.json)
+[![Build](https://img.shields.io/badge/build-CI%20checked-2563EB)](.github/workflows/ci.yml)
+[![npm audit](https://img.shields.io/badge/npm%20audit-production%20checked-CB3837)](.github/workflows/ci.yml)
+[![27 mock fixtures](https://img.shields.io/badge/evaluation-27%20mock%20fixtures-7C3AED)](src/evaluate.ts)
 
-## Arquitectura
+</div>
 
-**API de GitHub → parser de diff → filtros y contexto → mock o LLM → validación Zod y anclajes → informe Markdown.** La publicación permanece separada y desactivada. Consulte [arquitectura](docs/ARCHITECTURE.md), [decisiones](docs/DECISIONS.md) y [seguridad](docs/SECURITY.md).
+> **Estado del proyecto:** MVP implementado en el [PR #1](https://github.com/RamonRDR/ai-pull-request-reviewer/pull/1), todavía en **borrador**. La [ejecución de CI comprobada](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/runs/42421599236) aprobó **26 pruebas Vitest (0 fallos, 0 omitidas)**, tipado, lint, formato, compilación, demostración, evaluación sintética y auditoría de dependencias de producción. No se ha autorizado la fusión, el uso real de LLM ni la publicación de comentarios.
 
-## Instalación
+## 1. Descripción general
 
-```bash
+Revisor de pull requests de GitHub que prioriza la seguridad y las decisiones humanas. Lee modificaciones, prepara contexto limitado y genera hallazgos técnicos en Markdown. Es una **CLI ejecutada mediante GitHub Actions**, no una GitHub App alojada. Nunca aprueba, rechaza ni fusiona PR automáticamente. **El mock predeterminado simula el proceso con ejemplos sintéticos; no detecta errores reales** ni reemplaza un escáner de seguridad.
+
+## 2. Funciones implementadas
+
+- Consulta metadatos, ramas origen/destino y archivos modificados mediante Octokit y GitHub REST, con paginación y manejo de errores.
+- Analiza diffs y ubica líneas agregadas del lado RIGHT; omite parches incompletos, binarios, inaccesibles o demasiado grandes, sin inventar referencias.
+- Excluye dependencias, archivos generados, lockfiles, binarios y rutas sensibles; oculta patrones habituales de secretos antes de preparar el contexto.
+- Prioriza cambios de código y controla límites de archivos, caracteres, tokens, salida, comentarios y presupuesto estimado en dólares.
+- Separa proveedores: mock gratuito y determinista, junto con un **adaptador opcional de OpenAI API aún no validado integralmente**.
+- Valida JSON con Zod; descarta categorías no habilitadas, severidades insuficientes, duplicados, datos sensibles y líneas inexistentes.
+- Produce informes Markdown con ID, categoría, gravedad, ubicación, evidencia, explicación y corrección sugerida.
+- Incluye publicación protegida por **tres autorizaciones simultáneas**, que rechaza mocks, forks y análisis parciales. La publicación real no se ha probado.
+
+## 3. Tecnologías
+
+**Runtime:** Node.js **26 en CI** (`engines.node >=22` en el manifiesto). **Lenguaje:** TypeScript **5.9.3**, modo strict, además de configuración JavaScript. **GitHub:** `@octokit/rest 22.0.1` y API REST. **Esquemas:** Zod **4.6.7**. **IA opcional:** OpenAI SDK **6.49.0**, inactivo sin permiso y presupuesto. **Herramientas:** `tsx 4.23.15`, Vitest **4.1.12**, ESLint **9.39.5**, Prettier **3.9.10**, npm y GitHub Actions. Versiones exactas resueltas en `package-lock.json`; los badges muestran versiones principales.
+
+No hay servidor, bases de datos, Redis, Docker, Python, pytest, E2E de navegador, RAG, embeddings, MCP ni despliegue.
+
+## 4. Arquitectura
+
+~~~mermaid
+flowchart LR
+  PR[GitHub PR] --> API[Octokit REST]
+  API --> DIFF[Diff parser and safe context]
+  DIFF --> LLM[Mock or opt-in OpenAI adapter]
+  LLM --> VALIDATE[Zod, changed-line anchors and deduplication]
+  VALIDATE --> REPORT[Local Markdown report]
+  VALIDATE -. triple opt-in, real only .-> COMMENTS[GitHub comments]
+~~~
+
+El revisor trata los diffs como **datos no confiables** y no ejecuta el código analizado. Más información: [arquitectura](docs/ARCHITECTURE.md), [decisiones técnicas](docs/DECISIONS.md) y [modelo de amenazas](docs/SECURITY.md).
+
+## 5. Requisitos e instalación
+
+Node.js **22 o superior** y npm. CI usa Node.js 26. Para PR reales se necesita token limitado al repositorio con **Contents: read** y **Pull requests: read**. La demo no requiere credenciales ni servicios externos.
+
+~~~bash
 git clone https://github.com/RamonRDR/ai-pull-request-reviewer.git
 cd ai-pull-request-reviewer
-npm install
+npm ci
+npm run typecheck
+npm test
 npm run demo
 npm run evaluate
-```
+~~~
 
-La demostración gratuita genera `reports/demo.md⟧. Es una simulación, no una revisión real mediante IA.
+Se utiliza el lockfile versionado. No incluya claves ni tokens en Git.
 
-## Configuración y reglas del repositorio
+## 6. Configuración
 
-Personalice `.ai-pr-reviewer.json⟧: categorías, gravedad mínima, patrones ignorados, límites de archivos, contexto, tokens, presupuesto y comentarios, idioma `es⟧ y reglas personalizadas. Los esquemas inválidos detienen el análisis. `.env.example⟧ documenta variables, pero las credenciales no deben registrarse en Git.
+Las reglas se definen en [`.ai-pr-reviewer.json`](.ai-pr-reviewer.json) y se validan antes de ejecutar.
 
-## Integración con GitHub
+| Setting | Purpose |
+| --- | --- |
+| `categories` / `minSeverity` | Review categories and minimum severity |
+| `ignore` | Additional glob patterns to exclude |
+| `maxFiles` / `maxContextChars` | Scope and input character limit |
+| `maxInputTokens` / `maxOutputTokens` | Preflight input estimate and model output ceiling |
+| `maxCostUsd` | Estimated USD cost ceiling per review |
+| `maxComments` | Maximum accepted findings |
+| `language` / `customRules` | Report language and repository rules |
+| `enablePublishing` | Disabled by default; additional opt-in required |
 
-Utilice un `GITHUB_TOKEN⟧ de solo lectura, limitado al repositorio:
+Consulte [`.env.example`](.env.example). La CLI **no carga archivos .env automáticamente**; configure las variables en el entorno o un gestor de secretos. El modo predeterminado solo genera informes.
 
-```bash
+## 7. CLI y uso de GitHub API
+
+~~~bash
+# Read-only live PR metadata with a synthetic-only provider:
+export GITHUB_TOKEN=YOUR_SCOPED_TOKEN
 npm run build
 node dist/src/cli.js --repo OWNER/REPO --pr 123 --provider mock
-```
 
-El mock responde solo a marcadores sintéticos intencionados, como `DEMO_BUG⟧; los PR normales probablemente no generan hallazgos.
+# Offline sample (no token, paid API, or real PR needed):
+npm run demo
+# Generated: reports/demo.md
+~~~
 
-## Proveedor LLM opcional y control de costos
+El proveedor `mock` consulta metadatos reales, pero solo responde a marcadores sintéticos como `DEMO_BUG` y `DEMO_EDGE`. Un resultado sin hallazgos **no certifica que el PR sea correcto**.
 
-Configure `OPENAI_API_KEY⟧, `LLM_MODEL⟧, `LLM_INPUT_PRICE_PER_MILLION⟧ y `LLM_OUTPUT_PRICE_PER_MILLION⟧ con precios verificados; use `--provider openai --allow-external-llm⟧. Esta operación puede generar costos y **no se ejecuta automáticamente en CI**. Los límites bloquean solicitudes sin presupuesto o precios. No se permiten repositorios privados y la redacción de secretos no ofrece garantías absolutas.
+## 8. LLM externo opcional y presupuesto
 
-## Categorías, gravedad y comentarios
+**Opcional y con costo:** utilice `--provider openai --allow-external-llm`. Compruebe las tarifas actuales, configure precios positivos por millón de tokens y límites conservadores para `maxInputTokens`, `maxOutputTokens` y `maxCostUsd`.
 
-Categorías: bug, security, edge_case, maintainability, testing, performance. Gravedad: critical, high, medium, low, informational. Los hallazgos necesitan archivo, línea agregada, explicación, sugerencia y gravedad. Las sugerencias de LLM son hipótesis y requieren verificación humana.
+~~~bash
+export OPENAI_API_KEY=YOUR_KEY
+export LLM_MODEL=gpt-4.1-mini
+export LLM_INPUT_PRICE_PER_MILLION=YOUR_VERIFIED_INPUT_PRICE
+export LLM_OUTPUT_PRICE_PER_MILLION=YOUR_VERIFIED_OUTPUT_PRICE
+# GITHUB_TOKEN must also be set; use PUBLIC repository code only.
+node dist/src/cli.js --repo OWNER/PUBLIC_REPO --pr 123 --provider openai --allow-external-llm
+~~~
 
-Para publicar se necesitan `--publish⟧, `enablePublishing: true⟧ y `ALLOW_GITHUB_COMMENTS=true⟧, además de permiso de escritura. Se bloquean forks, informes incompletos y mocks. Los identificadores estables ayudan a evitar duplicados. La aprobación y el merge son decisiones humanas.
+La CLI bloquea el uso remoto de modelos con **repositorios privados**. La redacción de secretos es imperfecta, así que no envíe código confidencial. Los costos son estimaciones, nunca garantías de facturación. CI obligatorio **no realiza llamadas pagadas**.
 
-## Seguridad
+## 9. Hallazgos, categorías y gravedad
 
-El revisor no ejecuta código de PR ni utiliza `pull_request_target⟧. CI no recibe claves de IA ni publica comentarios. Las limitaciones de protección ante prompt injection y fuga de datos se describen en [SECURITY.md](docs/SECURITY.md).
+Categorías: `bug`, `security`, `edge_case`, `maintainability`, `testing` y `performance`. Gravedades: `critical`, `high`, `medium`, `low` e `informational`. Cada hallazgo apunta a una **línea agregada real**, presenta ID y corrección sugerida, y puede incluir evidencia o confianza sin calibración. No se generan comentarios para rellenar categorías; la verificación final corresponde a una persona.
 
-## Pruebas y GitHub Actions
+## 10. Publicación y eliminación de duplicados
 
-`npm run lint⟧, `npm run format:check⟧, `npm run typecheck⟧, `npm test⟧, `npm run test:integration⟧, `npm run evaluate⟧ y `npm run build⟧. [CI](.github/workflows/ci.yml) utiliza runners alojados por GitHub. [Manual read-only review](.github/workflows/demo.yml) nunca genera cargos ni publica resultados.
+Normalmente se genera únicamente un informe Markdown local. Publicar exige `--publish`, `enablePublishing: true` y `ALLOW_GITHUB_COMMENTS=true` **simultáneamente**, además de **Pull requests: write**. El mecanismo impide publicar mocks, forks o revisiones parciales y compara fingerprints con comentarios anteriores. Solo utiliza `COMMENT`; jamás `APPROVE`, `REQUEST_CHANGES` ni merge. **La publicación real permanece deshabilitada y sin validación externa.**
 
-## Evaluación
+## 11. Pruebas, calidad y GitHub Actions
 
-La suite contiene **27 casos sintéticos**: 18 con marcadores, siete cambios correctos y dos textos de prompt injection. Precisión, recall, falsos positivos, duplicados, localización, tokens y costos miden exclusivamente el **mock**, no un modelo real.
+~~~bash
+npm run lint
+npm run format:check
+npm run typecheck
+npm test
+npm run test:integration
+npm run evaluate
+npm run build
+~~~
 
-## Demostración
+El [CI](.github/workflows/ci.yml) ejecuta `npm ci`, ESLint, Prettier, TypeScript strict, Vitest, evaluación sintética, compilación, artefacto de demostración y auditoría de dependencias de producción en runners alojados de GitHub. El [workflow manual de solo lectura](.github/workflows/demo.yml) admite un número opcional de PR y no publica comentarios. Sin runners propios, despliegue ni uso de IA pagada.
 
-Vea [DEMO.md](docs/DEMO.md). El ejemplo de aritmética contiene errores sintéticos deliberados; el ejemplo limpio no genera observaciones. No se afirma disponer de capturas o pruebas externas no realizadas.
+**Última ejecución verificada:** [26 aprobadas, 0 fallidas, 0 omitidas](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/runs/42421599236). El badge presenta la **cantidad real comprobada**, no el número de archivos. CI compara los tres badges README con el informe JSON de Vitest; si cambia el número de pruebas, deben actualizarse los tres antes de superar el check. No se afirma cobertura porcentual porque no se mide.
 
-## Limitaciones conocidas
+## 12. Evaluación
 
-Sin análisis semántico completo, ejecución de código, garantía de detección de vulnerabilidades, rendimiento real del LLM probado ni publicación en vivo validada. Diffs grandes, binarios o incompletos reducen cobertura. Los costos son estimados y la revisión humana sigue siendo imprescindible.
+`npm run evaluate` ejecuta **27 casos sintéticos**: 18 marcadores en seis categorías, 7 cambios correctos y 2 textos de prompt injection. Las métricas de precisión, recall, falsos positivos, duplicados, localización, tokens y costos son **solo del mock**. **No demuestran la capacidad de OpenAI para detectar vulnerabilidades reales.** No hay evaluación del modelo real.
 
-## Licencia
+## 13. Seguridad
 
-[MIT](LICENSE), © 2026 Ramon Rodriguez. Conservar avisos de terceros.
+Consulte [SECURITY.md](docs/SECURITY.md). Los controles incluyen permisos de lectura en CI, exclusión de rutas confidenciales, ocultación parcial de secretos, límites de costo, aislamiento de diffs no confiables, validación Zod, comprobación de líneas, bloqueo de forks y autorización triple. El revisor no hace checkout ni ejecuta código de PR de terceros y no usa `pull_request_target`. Prompt injection, secretos inusuales y alucinaciones continúan siendo riesgos.
+
+## 14. Demostración reproducible
+
+Ejecute `npm run demo` para obtener `reports/demo.md`, identificado como **SIMULATED DEMO ONLY**. La muestra `src/average.ts` contiene marcadores artificiales de lógica y entradas vacías; `src/greeting.ts` es un cambio correcto que no debe generar hallazgos. Consulte la [guía de demostración](docs/DEMO.md) y el [informe ilustrativo](examples/review.sample.md). CI adjunta el informe generado. No se atribuyen capturas, vídeos o revisiones reales inexistentes.
+
+## 15. Estructura del repositorio
+
+| Path | Responsibility |
+| --- | --- |
+| `src/github.ts` / `src/diff.ts` | Octokit REST, pagination and changed-line parsing |
+| `src/context.ts` / `src/config.ts` | Filters, redaction, limits and validated settings |
+| `src/provider.ts` | Deterministic mock and opt-in OpenAI adapter |
+| `src/models.ts` / `src/review.ts` | Finding schemas, severity, anchoring and deduplication |
+| `src/report.ts` / `src/publish.ts` | Markdown output and gated review comments |
+| `src/cli.ts` / `src/demo.ts` / `src/evaluate.ts` | Commands, offline demo and synthetic fixture evaluation |
+| `tests/` | Vitest unit tests and mocked integration tests |
+| `.github/workflows/ci.yml` | CI quality gates, evaluation, build, audit and demo artifact |
+| `.github/workflows/demo.yml` | Manually triggered read-only review |
+| `docs/` / `examples/` | Architecture, ADRs, security, demo and example outputs |
+
+## 16. Limitaciones conocidas
+
+- Sin análisis semántico integral entre archivos, ejecución del código revisado, precisión verificada de LLM ni GitHub App instalado en producción.
+- Los parches ausentes, binarios o extensos reducen cobertura; se informa de análisis parciales.
+- El modelo puede inventar u omitir defectos pese a validaciones de esquema y ubicación.
+- Las defensas ante prompt injection, la redacción de secretos y las estimaciones de costo **no son garantías**.
+- Las llamadas a LLM real y la publicación en PR reales todavía no tienen autorización ni pruebas integrales.
+- No se publican paquetes npm ni se despliegan servicios.
+
+## 17. Contribución y mantenimiento
+
+Abra una issue antes de cambios extensos; envíe pull requests pequeños con pruebas y documentación en inglés. Mantenga sincronizadas las traducciones al portugués y español. Ejecute `npm run check` antes de un merge. Los badges deben coincidir con la última ejecución exitosa de Vitest y el script `scripts/check-test-badges.mjs` comprueba esa consistencia. Todas las aprobaciones y fusiones siguen siendo humanas.
+
+## 18. Licencia
+
+[MIT](LICENSE) © 2026 Ramon Rodriguez. Conserve avisos de terceros.
