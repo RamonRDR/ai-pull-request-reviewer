@@ -67,6 +67,7 @@ function fixturePr(index: number, entry: Case): PullRequestData {
     title: entry.name,
     base: 'main',
     head: 'synthetic-' + index,
+    headSha: 'a'.repeat(40),
     headRepo: 'synthetic/evaluation',
     changedFiles: 1,
     files: [
