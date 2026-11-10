@@ -22,7 +22,7 @@
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%20%26%20manual-2088FF)](.github/workflows/ci.yml)
 [![Read-only default](https://img.shields.io/badge/reviews-read--only%20default-6B7280)](.ai-pr-reviewer.json)
 
-[![Vitest 32 passing](https://img.shields.io/badge/Vitest-32%20passing-6E9F18)](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml)
+[![Vitest 34 passing](https://img.shields.io/badge/Vitest-34%20passing-6E9F18)](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml)
 [![ESLint](https://img.shields.io/badge/ESLint-lint-4B32C3)](eslint.config.mjs)
 [![Prettier](https://img.shields.io/badge/Prettier-format%20checked-F7B93E)](.prettierrc.json)
 [![TypeScript strict](https://img.shields.io/badge/TypeScript-strict%20checked-3178C6)](tsconfig.json)
@@ -32,7 +32,7 @@
 
 </div>
 
-> **Estado del proyecto:** MVP implementado en el [PR #1](https://github.com/RamonRDR/ai-pull-request-reviewer/pull/1), **abierto para revisión**. La [ejecución de CI comprobada](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml) aprobó **32 pruebas Vitest (0 fallos, 0 omitidas)**, tipado, lint, formato, compilación, demostración, evaluación sintética y auditoría de dependencias de producción. No se ha autorizado la fusión, el uso real de LLM ni la publicación de comentarios.
+> **Estado del proyecto:** MVP implementado en el [PR #1](https://github.com/RamonRDR/ai-pull-request-reviewer/pull/1), **abierto para revisión**. La [ejecución de CI comprobada](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml) aprobó **34 pruebas Vitest (0 fallos, 0 omitidas)**, tipado, lint, formato, compilación, demostración, evaluación sintética y auditoría de dependencias de producción. No se ha autorizado la fusión, el uso real de LLM ni la publicación de comentarios.
 
 ## 1. Descripción general
 
@@ -154,7 +154,7 @@ npm run build
 
 El [CI](.github/workflows/ci.yml) ejecuta `npm ci`, ESLint, Prettier, TypeScript strict, Vitest, evaluación sintética, compilación, artefacto de demostración y auditoría de dependencias de producción en runners alojados de GitHub. El [workflow manual de solo lectura](.github/workflows/demo.yml) admite un número opcional de PR y no publica comentarios. Sin runners propios, despliegue ni uso de IA pagada.
 
-**Ejecución de referencia verificada:** [32 aprobadas, 0 fallidas, 0 omitidas](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml). El badge presenta la **cantidad real comprobada**, no el número de archivos. CI compara los tres badges README con el informe JSON de Vitest; si cambia el número de pruebas, deben actualizarse los tres antes de superar el check. No se afirma cobertura porcentual porque no se mide.
+**Ejecución de referencia verificada:** [34 aprobadas, 0 fallidas, 0 omitidas](https://github.com/RamonRDR/ai-pull-request-reviewer/actions/workflows/ci.yml). El badge presenta la **cantidad real comprobada**, no el número de archivos. CI compara los tres badges README con el informe JSON de Vitest; si cambia el número de pruebas, deben actualizarse los tres antes de superar el check. No se afirma cobertura porcentual porque no se mide.
 
 ## 12. Evaluación
 

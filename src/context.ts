@@ -14,10 +14,12 @@ const sensitivePath =
 function globMatch(path: string, pattern: string): boolean {
   const escaped = pattern
     .replace(/[.+^$()|[\]{}]/g, '\\$&')
+    .replace(/\*\*\//g, '__GLOBSTAR_DIR__')
     .replace(/\*\*/g, '__GLOBSTAR__')
     .replace(/\*/g, '[^/]*')
-    .replace(/__GLOBSTAR__/g, '.*')
-    .replace(/\?/g, '.');
+    .replace(/\?/g, '[^/]')
+    .replace(/__GLOBSTAR_DIR__/g, '(?:.*/)?')
+    .replace(/__GLOBSTAR__/g, '.*');
   return new RegExp('^' + escaped + '$').test(path);
 }
 

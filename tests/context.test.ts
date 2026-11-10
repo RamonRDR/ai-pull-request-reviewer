@@ -30,6 +30,28 @@ describe('safe context preparation', () => {
       ignored('docs/generated/output.txt', configSchema.parse({ ignore: ['docs/generated/**'] })),
     ).toBe(true);
   });
+  it('matches globstar directory ignores at root and nested levels', () => {
+    const rules = configSchema.parse({
+      ignore: ['**/credentials.json', 'src/**/private.txt'],
+    });
+    for (const path of [
+      'credentials.json',
+      'src/credentials.json',
+      'src/nested/credentials.json',
+      'src/private.txt',
+      'src/deep/nested/private.txt',
+    ]) {
+      expect(ignored(path, rules)).toBe(true);
+    }
+    expect(ignored('public.json', rules)).toBe(false);
+  });
+  it('excludes root-level ignored files from external-model context', () => {
+    const rules = configSchema.parse({ ignore: ['**/credentials.json'] });
+    const patch = '@@ -0,0 +1,1 @@\n+const leaked = "synthetic-example";';
+    const prepared = prepareContext([file('credentials.json', patch)], rules);
+    expect(prepared.files).toHaveLength(0);
+    expect(prepared.skipped).toContain('credentials.json: ignored');
+  });
   it('redacts common token and assignment formats', () => {
     expect(redact('api_key="topsecret"')).not.toContain('topsecret');
     expect(redact('ghp_12345678901234567890')).not.toContain('12345678901234567890');
